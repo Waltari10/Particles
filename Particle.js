@@ -15,13 +15,24 @@ module.exports = class Particle extends GameObject {
     this.radius = _.random(20, canvas.height / 3 )
     this.target = getPosOnCircle(this.radius, Math.PI * this.progress, this.center)
     this.size = (Math.random() * 8) + 2
+    this.color = this.getRandomColor()
   }
   render() {
+
+    ctx.fillStyle = this.color
+    ctx.strokeStyle = this.color
     ctx.beginPath()
     ctx.arc(this.location.x, this.location.y, this.size , 0, 2 * Math.PI)
     ctx.fill()
     ctx.stroke()
-
+  }
+  getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
   }
   update() {
     this.center = pressLocation
