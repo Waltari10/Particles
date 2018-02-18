@@ -1,4 +1,31 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+const GameObject = require('./GameObject')
+const _ = require('lodash')
+
+module.exports = class FadingParticle extends GameObject {
+  constructor(args) {
+    super(args)
+    this.size = args.size
+    this.color = args.color
+    this.location = args.location
+  }
+  render() {
+
+    ctx.fillStyle = this.color
+    ctx.strokeStyle = this.color
+    ctx.beginPath()
+    ctx.arc(this.location.x, this.location.y, this.size, 0, 2 * Math.PI)
+    ctx.fill()
+    ctx.stroke()
+  }
+  update() {
+   this.size = this.size * 0.9
+   if (this.size < 0) {
+     destroy(this)
+   }
+  }
+}
+},{"./GameObject":2,"lodash":9}],2:[function(require,module,exports){
 const {
   getVelocity,
   getForce,
@@ -48,7 +75,7 @@ module.exports = class GameObject {
     // this.y += this.velocity
   }
 }
-},{"./Physics":5}],2:[function(require,module,exports){
+},{"./Physics":6}],3:[function(require,module,exports){
 (function (global){
 const GameObject = require('./GameObject')
 const _ = require('lodash')
@@ -80,8 +107,9 @@ module.exports = class HoldListener extends GameObject {
   }
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./GameObject":1,"lodash":8}],3:[function(require,module,exports){
+},{"./GameObject":2,"lodash":9}],4:[function(require,module,exports){
 const GameObject = require('./GameObject')
+const FadingParticle = require('./FadingParticle')
 const _ = require('lodash')
 const {
   getForce,
@@ -120,7 +148,7 @@ module.exports = class Particle extends GameObject {
   update() {
     this.center = pressLocation
 
-    this.progress = this.progress + 0.005
+    this.progress = this.progress + 0.01
     if (this.progress > 1) {
       this.progress = -1
     }
@@ -131,28 +159,37 @@ module.exports = class Particle extends GameObject {
     differenceVector = differenceVector.divide(new Vector2(10, 10))
 
     this.location = this.location.add(differenceVector)
+
+    instantiate(FadingParticle, {
+      location: this.location.clone(),
+      size: this.size,
+      color: this.color
+    })
     
   }
 }
-},{"./GameObject":1,"./Physics":5,"lodash":8}],4:[function(require,module,exports){
+},{"./FadingParticle":1,"./GameObject":2,"./Physics":6,"lodash":9}],5:[function(require,module,exports){
 const Particle = require('./Particle')
 const HoldListener = require('./HoldListener')
+const FadingParticle = require('./FadingParticle')
 
 function createScene () {
   instantiate(HoldListener)
 
-  let i = 500
+  let i = 10
   while (i--) {
     instantiate(Particle, {
       center: Vector2(400, 400),
     })
   }
+
+
 }
 
 module.exports = {
   createScene
 }
-},{"./HoldListener":2,"./Particle":3}],5:[function(require,module,exports){
+},{"./FadingParticle":1,"./HoldListener":3,"./Particle":4}],6:[function(require,module,exports){
 const defaultAcceleration = 9.81
 const airDensity = 1.225 // kg/m3
 const circleDragCoefficient = 0.47
@@ -188,7 +225,7 @@ module.exports = {
     return degree / (180 / Math.PI)
   },
 }
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 const TARGET_FPS = 60
 const TARGET_FRAME_DURATION = (1000 / TARGET_FPS)
 
@@ -196,7 +233,7 @@ module.exports = {
   TARGET_FPS,
   TARGET_FRAME_DURATION,
 }
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 const { TARGET_FPS, TARGET_FRAME_DURATION } = require('./constants')
 
 function draw() {
@@ -238,7 +275,7 @@ function loop() {
 }
 
 module.exports = { loop }
-},{"./constants":6}],8:[function(require,module,exports){
+},{"./constants":7}],9:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -17326,7 +17363,7 @@ module.exports = { loop }
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 (function (global){
 var os = require('os');
 
@@ -17466,7 +17503,7 @@ lib.all = function (callback) {
 module.exports = lib;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./lib/linux.js":10,"./lib/unix.js":11,"./lib/windows.js":12,"os":17}],10:[function(require,module,exports){
+},{"./lib/linux.js":11,"./lib/unix.js":12,"./lib/windows.js":13,"os":18}],11:[function(require,module,exports){
 var exec = require('child_process').exec;
 
 module.exports = function (iface, callback) {
@@ -17479,7 +17516,7 @@ module.exports = function (iface, callback) {
     });
 };
 
-},{"child_process":16}],11:[function(require,module,exports){
+},{"child_process":17}],12:[function(require,module,exports){
 var exec = require('child_process').exec;
 
 module.exports = function (iface, callback) {
@@ -17497,7 +17534,7 @@ module.exports = function (iface, callback) {
     });
 };
 
-},{"child_process":16}],12:[function(require,module,exports){
+},{"child_process":17}],13:[function(require,module,exports){
 var exec = require('child_process').exec;
 
 var regexRegex = /[-\/\\^$*+?.()|[\]{}]/g;
@@ -17527,7 +17564,7 @@ module.exports = function (iface, callback) {
     });
 };
 
-},{"child_process":16}],13:[function(require,module,exports){
+},{"child_process":17}],14:[function(require,module,exports){
 (function (process){
 /* 
 (The MIT License)
@@ -17568,7 +17605,7 @@ function macHandler(error){
 }
 
 }).call(this,require('_process'))
-},{"_process":18,"macaddress":9}],14:[function(require,module,exports){
+},{"_process":19,"macaddress":10}],15:[function(require,module,exports){
 exports = module.exports = Victor;
 
 /**
@@ -18894,7 +18931,7 @@ function degrees2radian (deg) {
 	return deg / degrees;
 }
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 (function (global){
 const _ = require('lodash')
 const GameObject = require('./GameObject')
@@ -18933,9 +18970,9 @@ createScene()
 loop()
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./GameObject":1,"./ParticleScene":4,"./constants":6,"./loop":7,"lodash":8,"uniqid":13,"victor":14}],16:[function(require,module,exports){
+},{"./GameObject":2,"./ParticleScene":5,"./constants":7,"./loop":8,"lodash":9,"uniqid":14,"victor":15}],17:[function(require,module,exports){
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 exports.endianness = function () { return 'LE' };
 
 exports.hostname = function () {
@@ -18986,7 +19023,7 @@ exports.homedir = function () {
 	return '/'
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -19172,4 +19209,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[15]);
+},{}]},{},[16]);

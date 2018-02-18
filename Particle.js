@@ -1,4 +1,5 @@
 const GameObject = require('./GameObject')
+const FadingParticle = require('./FadingParticle')
 const _ = require('lodash')
 const {
   getForce,
@@ -37,7 +38,7 @@ module.exports = class Particle extends GameObject {
   update() {
     this.center = pressLocation
 
-    this.progress = this.progress + 0.005
+    this.progress = this.progress + 0.01
     if (this.progress > 1) {
       this.progress = -1
     }
@@ -48,6 +49,12 @@ module.exports = class Particle extends GameObject {
     differenceVector = differenceVector.divide(new Vector2(10, 10))
 
     this.location = this.location.add(differenceVector)
+
+    instantiate(FadingParticle, {
+      location: this.location.clone(),
+      size: this.size,
+      color: this.color
+    })
     
   }
 }
