@@ -177,6 +177,22 @@ module.exports = class Particle extends GameObject {
 
     this.location = this.location.add(this.diffVector)
 
+    if (this.location.x < 0) {
+      this.location.x = 0
+    }
+
+    if (this.location.y < 0) {
+      this.location.y = 0
+    }
+
+    if (this.location.x > canvas.width) {
+      this.location.x = canvas.width
+    }
+
+    if (this.location.y > canvas.height) {
+      this.location.y = canvas.height
+    }
+
 
 
     if (this.trailLength > 0) {
