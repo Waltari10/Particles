@@ -12,13 +12,11 @@ module.exports = class FadingParticle extends GameObject {
 
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
-    ctx.beginPath()
     ctx.arc(this.location.x, this.location.y, this.size, 0, 2 * Math.PI)
     ctx.fill()
-    ctx.stroke()
   }
   update() {
-   this.size = this.size * 0.9
+   this.size = this.size * 0.89
    if (this.size < 0) {
      destroy(this)
    }

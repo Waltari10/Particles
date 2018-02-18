@@ -17,15 +17,14 @@ module.exports = class Particle extends GameObject {
     this.target = getPosOnCircle(this.radius, Math.PI * this.progress, this.center)
     this.size = (Math.random() * 8) + 2
     this.color = this.getRandomColor()
+    this.speed = Math.random() / 100 + 0.01
   }
   render() {
 
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
-    ctx.beginPath()
     ctx.arc(this.location.x, this.location.y, this.size , 0, 2 * Math.PI)
     ctx.fill()
-    ctx.stroke()
   }
   getRandomColor() {
     var letters = '0123456789ABCDEF';
@@ -38,7 +37,7 @@ module.exports = class Particle extends GameObject {
   update() {
     this.center = pressLocation
 
-    this.progress = this.progress + 0.01
+    this.progress = this.progress + this.speed
     if (this.progress > 1) {
       this.progress = -1
     }
@@ -55,6 +54,5 @@ module.exports = class Particle extends GameObject {
       size: this.size,
       color: this.color
     })
-    
   }
 }

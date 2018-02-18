@@ -13,13 +13,11 @@ module.exports = class FadingParticle extends GameObject {
 
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
-    ctx.beginPath()
     ctx.arc(this.location.x, this.location.y, this.size, 0, 2 * Math.PI)
     ctx.fill()
-    ctx.stroke()
   }
   update() {
-   this.size = this.size * 0.9
+   this.size = this.size * 0.89
    if (this.size < 0) {
      destroy(this)
    }
@@ -90,9 +88,9 @@ module.exports = class HoldListener extends GameObject {
     this.mouseUp = this.mouseUp.bind(this)
     this.mouseMove = this.mouseMove.bind(this)
 
-    canvas.addEventListener("mousedown", this.mouseDown);
-    canvas.addEventListener("mouseup", this.mouseUp);  //listen for mouse up event on body, not just the element you originally clicked on
-    canvas.addEventListener("mousemove", this.mouseMove);
+    canvas.addEventListener("mousedown", this.mouseDown)
+    canvas.addEventListener("mouseup", this.mouseUp)
+    canvas.addEventListener("mousemove", this.mouseMove)
   }
   mouseMove(e) {
     if (this.hold) {
@@ -100,6 +98,7 @@ module.exports = class HoldListener extends GameObject {
     }
   }
   mouseDown(e) {
+    global.pressLocation = Vector2(e.x, e.y)
     this.hold = true
   }
   mouseUp(e) {
@@ -127,15 +126,14 @@ module.exports = class Particle extends GameObject {
     this.target = getPosOnCircle(this.radius, Math.PI * this.progress, this.center)
     this.size = (Math.random() * 8) + 2
     this.color = this.getRandomColor()
+    this.speed = Math.random() / 100 + 0.01
   }
   render() {
 
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
-    ctx.beginPath()
     ctx.arc(this.location.x, this.location.y, this.size , 0, 2 * Math.PI)
     ctx.fill()
-    ctx.stroke()
   }
   getRandomColor() {
     var letters = '0123456789ABCDEF';
@@ -148,7 +146,7 @@ module.exports = class Particle extends GameObject {
   update() {
     this.center = pressLocation
 
-    this.progress = this.progress + 0.01
+    this.progress = this.progress + this.speed
     if (this.progress > 1) {
       this.progress = -1
     }
@@ -165,7 +163,6 @@ module.exports = class Particle extends GameObject {
       size: this.size,
       color: this.color
     })
-    
   }
 }
 },{"./FadingParticle":1,"./GameObject":2,"./Physics":6,"lodash":9}],5:[function(require,module,exports){
@@ -176,7 +173,7 @@ const FadingParticle = require('./FadingParticle')
 function createScene () {
   instantiate(HoldListener)
 
-  let i = 10
+  let i = 10  
   while (i--) {
     instantiate(Particle, {
       center: Vector2(400, 400),
@@ -226,7 +223,7 @@ module.exports = {
   },
 }
 },{}],7:[function(require,module,exports){
-const TARGET_FPS = 60
+const TARGET_FPS = 30
 const TARGET_FRAME_DURATION = (1000 / TARGET_FPS)
 
 module.exports = {
