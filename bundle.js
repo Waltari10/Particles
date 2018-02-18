@@ -2,27 +2,31 @@
 const GameObject = require('./GameObject')
 const _ = require('lodash')
 
+const { MIN_PARTICLE_SIZE, SIZE_MODIFIER } = require('./constants')
+
 module.exports = class FadingParticle extends GameObject {
   constructor(args) {
     super(args)
     this.size = args.size
+    this.originalSize = args.size
     this.color = args.color
     this.location = args.location
+    this.parentLocation = args.parentLocation
   }
   render() {
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
     ctx.arc(Math.floor(this.location.x), Math.floor(this.location.y), this.size, 0, 2 * Math.PI)
-    // ctx.fill()
   }
   update() {
-   this.size = this.size * 0.89
-   if (this.size < 0) {
-     destroy(this)
-   }
+    this.size = this.size * SIZE_MODIFIER
+    if (this.size < MIN_PARTICLE_SIZE) {
+      this.location = this.parentLocation.clone()
+      this.size = this.originalSize
+    }
   }
 }
-},{"./GameObject":2,"lodash":9}],2:[function(require,module,exports){
+},{"./GameObject":2,"./constants":7,"lodash":9}],2:[function(require,module,exports){
 const {
   getVelocity,
   getForce,
@@ -118,25 +122,32 @@ const {
   getPosOnCircle
 } = require('./Physics')
 
+const { MIN_PARTICLE_SIZE, SIZE_MODIFIER } = require('./constants')
 
 module.exports = class Particle extends GameObject {
   constructor(args) {
     super(args)
     this.progress = (Math.random() * 2) -1
     this.center = pressLocation
-    this.radius = _.random(20, canvas.height / 3 )
+    this.radius = _.random(20, canvas.height / 2 )
     this.target = getPosOnCircle(this.radius, Math.PI * this.progress, this.center)
     this.size = (Math.random() * 8) + 2
     this.color = this.getRandomColor()
     this.speed = Math.random() / 100 + 0.01
     this.divisionVector = Vector2(10, 10) 
+
+    this.trail = []
+
+
+    this.trailLength = 1
+    for (let k = this.size; k > MIN_PARTICLE_SIZE; k = k * SIZE_MODIFIER) {
+       this.trailLength++
+    }
   }
   render() {
-
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
     ctx.arc(Math.floor(this.location.x), Math.floor(this.location.y), this.size , 0, 2 * Math.PI)
-    // ctx.fill()
   }
   getRandomColor() {
     var letters = '0123456789ABCDEF';
@@ -166,29 +177,33 @@ module.exports = class Particle extends GameObject {
 
     this.location = this.location.add(this.diffVector)
 
-    instantiate(FadingParticle, {
-      location: this.location.clone(),
-      size: this.size,
-      color: this.color
-    })
+
+
+    if (this.trailLength > 0) {
+      this.trailLength--
+      this.trail.push(instantiate(FadingParticle, {
+        location: this.location.clone(),
+        parentLocation: this.location,
+        size: this.size,
+        color: this.color
+      }))
+    } 
+
   }
 }
-},{"./FadingParticle":1,"./GameObject":2,"./Physics":6,"lodash":9}],5:[function(require,module,exports){
+},{"./FadingParticle":1,"./GameObject":2,"./Physics":6,"./constants":7,"lodash":9}],5:[function(require,module,exports){
 const Particle = require('./Particle')
 const HoldListener = require('./HoldListener')
 const FadingParticle = require('./FadingParticle')
 
 function createScene () {
   instantiate(HoldListener)
-
-  let i = 20
+  let i = 100
   while (i--) {
     instantiate(Particle, {
       center: Vector2(400, 400),
     })
   }
-
-
 }
 
 module.exports = {
@@ -233,10 +248,14 @@ module.exports = {
 },{}],7:[function(require,module,exports){
 const TARGET_FPS = 30
 const TARGET_FRAME_DURATION = (1000 / TARGET_FPS)
+const MIN_PARTICLE_SIZE = 0.15
+const SIZE_MODIFIER = 0.89
 
 module.exports = {
   TARGET_FPS,
   TARGET_FRAME_DURATION,
+  MIN_PARTICLE_SIZE,
+  SIZE_MODIFIER
 }
 },{}],8:[function(require,module,exports){
 const { TARGET_FPS, TARGET_FRAME_DURATION } = require('./constants')

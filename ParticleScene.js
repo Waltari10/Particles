@@ -4,15 +4,12 @@ const FadingParticle = require('./FadingParticle')
 
 function createScene () {
   instantiate(HoldListener)
-
-  let i = 20
+  let i = 100
   while (i--) {
     instantiate(Particle, {
       center: Vector2(400, 400),
     })
   }
-
-
 }
 
 module.exports = {
