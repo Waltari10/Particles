@@ -5,8 +5,9 @@ function draw() {
   for (const key in gameObjects) {
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.moveTo(gameObjects[key].x, gameObjects[key].y)
+    ctx.moveTo(Math.floor(gameObjects[key].x), Math.floor(gameObjects[key].y))
     gameObjects[key].render()
+    ctx.fill()
     ctx.stroke()
   }
 }
@@ -32,7 +33,6 @@ function loop() {
   draw()
   const renderTime = Date.now() - startTime
   timeDelta = renderTime < TARGET_FRAME_DURATION ? TARGET_FRAME_DURATION : renderTime
-  // console.log(timeDelta)
   this.setTimeout(() => {
     loop()
   }, TARGET_FRAME_DURATION - renderTime)

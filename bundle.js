@@ -10,11 +10,10 @@ module.exports = class FadingParticle extends GameObject {
     this.location = args.location
   }
   render() {
-
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
-    ctx.arc(this.location.x, this.location.y, this.size, 0, 2 * Math.PI)
-    ctx.fill()
+    ctx.arc(Math.floor(this.location.x), Math.floor(this.location.y), this.size, 0, 2 * Math.PI)
+    // ctx.fill()
   }
   update() {
    this.size = this.size * 0.89
@@ -94,14 +93,16 @@ module.exports = class HoldListener extends GameObject {
   }
   mouseMove(e) {
     if (this.hold) {
-      global.pressLocation = Vector2(e.x, e.y)
+      pressLocation.x = e.x
+      pressLocation.y = e.y
     }
   }
   mouseDown(e) {
-    global.pressLocation = Vector2(e.x, e.y)
+    pressLocation.x = e.x
+    pressLocation.y = e.y
     this.hold = true
   }
-  mouseUp(e) {
+  mouseUp() {
     this.hold = false
   }
 }
@@ -117,6 +118,7 @@ const {
   getPosOnCircle
 } = require('./Physics')
 
+
 module.exports = class Particle extends GameObject {
   constructor(args) {
     super(args)
@@ -127,13 +129,14 @@ module.exports = class Particle extends GameObject {
     this.size = (Math.random() * 8) + 2
     this.color = this.getRandomColor()
     this.speed = Math.random() / 100 + 0.01
+    this.divisionVector = Vector2(10, 10) 
   }
   render() {
 
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
-    ctx.arc(this.location.x, this.location.y, this.size , 0, 2 * Math.PI)
-    ctx.fill()
+    ctx.arc(Math.floor(this.location.x), Math.floor(this.location.y), this.size , 0, 2 * Math.PI)
+    // ctx.fill()
   }
   getRandomColor() {
     var letters = '0123456789ABCDEF';
@@ -152,11 +155,16 @@ module.exports = class Particle extends GameObject {
     }
     this.target = getPosOnCircle(this.radius, Math.PI * this.progress, this.center)
 
-    let differenceVector = Vector2(this.target.distanceX(this.location), this.target.distanceY(this.location))
+    if (!this.diffVector) {
+      this.diffVector = Vector2(this.target.distanceX(this.location), this.target.distanceY(this.location))
+    } else {
+      this.diffVector.x = this.target.distanceX(this.location)
+      this.diffVector.y = this.target.distanceY(this.location)
+    }
 
-    differenceVector = differenceVector.divide(new Vector2(10, 10))
+    this.diffVector = this.diffVector.divide(this.divisionVector)
 
-    this.location = this.location.add(differenceVector)
+    this.location = this.location.add(this.diffVector)
 
     instantiate(FadingParticle, {
       location: this.location.clone(),
@@ -173,7 +181,7 @@ const FadingParticle = require('./FadingParticle')
 function createScene () {
   instantiate(HoldListener)
 
-  let i = 10  
+  let i = 20
   while (i--) {
     instantiate(Particle, {
       center: Vector2(400, 400),
@@ -238,8 +246,9 @@ function draw() {
   for (const key in gameObjects) {
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.moveTo(gameObjects[key].x, gameObjects[key].y)
+    ctx.moveTo(Math.floor(gameObjects[key].x), Math.floor(gameObjects[key].y))
     gameObjects[key].render()
+    ctx.fill()
     ctx.stroke()
   }
 }
@@ -265,7 +274,6 @@ function loop() {
   draw()
   const renderTime = Date.now() - startTime
   timeDelta = renderTime < TARGET_FRAME_DURATION ? TARGET_FRAME_DURATION : renderTime
-  // console.log(timeDelta)
   this.setTimeout(() => {
     loop()
   }, TARGET_FRAME_DURATION - renderTime)

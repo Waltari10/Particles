@@ -17,14 +17,16 @@ module.exports = class HoldListener extends GameObject {
   }
   mouseMove(e) {
     if (this.hold) {
-      global.pressLocation = Vector2(e.x, e.y)
+      pressLocation.x = e.x
+      pressLocation.y = e.y
     }
   }
   mouseDown(e) {
-    global.pressLocation = Vector2(e.x, e.y)
+    pressLocation.x = e.x
+    pressLocation.y = e.y
     this.hold = true
   }
-  mouseUp(e) {
+  mouseUp() {
     this.hold = false
   }
 }

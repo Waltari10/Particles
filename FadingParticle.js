@@ -9,11 +9,10 @@ module.exports = class FadingParticle extends GameObject {
     this.location = args.location
   }
   render() {
-
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
-    ctx.arc(this.location.x, this.location.y, this.size, 0, 2 * Math.PI)
-    ctx.fill()
+    ctx.arc(Math.floor(this.location.x), Math.floor(this.location.y), this.size, 0, 2 * Math.PI)
+    // ctx.fill()
   }
   update() {
    this.size = this.size * 0.89

@@ -8,6 +8,7 @@ const {
   getPosOnCircle
 } = require('./Physics')
 
+
 module.exports = class Particle extends GameObject {
   constructor(args) {
     super(args)
@@ -18,13 +19,14 @@ module.exports = class Particle extends GameObject {
     this.size = (Math.random() * 8) + 2
     this.color = this.getRandomColor()
     this.speed = Math.random() / 100 + 0.01
+    this.divisionVector = Vector2(10, 10) 
   }
   render() {
 
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.color
-    ctx.arc(this.location.x, this.location.y, this.size , 0, 2 * Math.PI)
-    ctx.fill()
+    ctx.arc(Math.floor(this.location.x), Math.floor(this.location.y), this.size , 0, 2 * Math.PI)
+    // ctx.fill()
   }
   getRandomColor() {
     var letters = '0123456789ABCDEF';
@@ -43,11 +45,16 @@ module.exports = class Particle extends GameObject {
     }
     this.target = getPosOnCircle(this.radius, Math.PI * this.progress, this.center)
 
-    let differenceVector = Vector2(this.target.distanceX(this.location), this.target.distanceY(this.location))
+    if (!this.diffVector) {
+      this.diffVector = Vector2(this.target.distanceX(this.location), this.target.distanceY(this.location))
+    } else {
+      this.diffVector.x = this.target.distanceX(this.location)
+      this.diffVector.y = this.target.distanceY(this.location)
+    }
 
-    differenceVector = differenceVector.divide(new Vector2(10, 10))
+    this.diffVector = this.diffVector.divide(this.divisionVector)
 
-    this.location = this.location.add(differenceVector)
+    this.location = this.location.add(this.diffVector)
 
     instantiate(FadingParticle, {
       location: this.location.clone(),
